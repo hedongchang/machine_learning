@@ -7,18 +7,25 @@ public class ID3Controller {
 		HashMap<Integer, List<Features>> trainData = new HashMap<Integer, List<Features>>();
 		HashMap<Integer, List<Features>> testData = new HashMap<Integer, List<Features>>();
 		DataParser.ParseData(trainData, testData);
-		/*// the data parser should work fine
-		for (int label: trainData.keySet()) {
-			List<Features> features = trainData.get(label);
-			for (Features feature: features) {
-				System.out.println(label + " " + feature);
-			}
-		}*/
-		ID3Tree idtree = new ID3Tree(trainData);
-		//idtree.findAttribute(trainData);
+		
+		double[] pvalues = {0.05, 0.5, 1};
+
+		
+		for (double pvalue: pvalues) {
+			ID3Tree idtree = new ID3Tree(trainData, pvalue);
+			System.out.println("total number of nodes is " + idtree.nodeNum);
+			System.out.println("The percentage of correct prediction for test data is " 
+					+ calculatePredict(testData, idtree, 8000));
+			System.out.println("The percentage of correct prediction for train data is " 
+					+ calculatePredict(trainData, idtree, 12000) + "\n");
+		}
+	}
+	
+	private static double calculatePredict(HashMap<Integer, List<Features>> data, 
+			ID3Tree idtree, int totalNum) {
 		int correctCount = 0;
-		for (Integer label: testData.keySet()) {
-			List<Features> feature = testData.get(label);
+		for (Integer label: data.keySet()) {
+			List<Features> feature = data.get(label);
 			for (Features singleFeature: feature) {
 				int result = idtree.predict(singleFeature, idtree.overallNode);
 				if (result == label) {
@@ -26,8 +33,6 @@ public class ID3Controller {
 				}
 			}
 		}
-		System.out.println(idtree.attributeNum);
-		System.out.println("The percentage of correct prediction is " 
-				+ (double) 100 * correctCount / 8000.0);
+		return (double) 100 * correctCount / totalNum;
 	}
 }
