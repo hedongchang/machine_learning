@@ -216,7 +216,7 @@ public class ID3Tree {
 		double minEntropy = Double.MAX_VALUE;
 		for (int i = 1; i < 16; i++) {
 			double entropy = computeEntropySingleAttribute(values, i);
-			if (entropy < minEntropy) {
+			if (entropy <= minEntropy) {
 				minEntropy = entropy;
 				minAttribute = i;
 			}
