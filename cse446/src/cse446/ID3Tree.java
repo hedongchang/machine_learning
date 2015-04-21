@@ -6,10 +6,10 @@ public class ID3Tree {
 	
 	public static final int NUM_ATTRIBUTE = 16;
 	public static final int NUM_LABEL = 26;
-	public static final double P_VALUE = 1;
 	
 	// the number of attributes that have been split
-	public int attributeNum;
+	public int nodeNum;
+	public double pvalue;
 	
 	ID3TreeNode overallNode;
 	
@@ -17,30 +17,22 @@ public class ID3Tree {
 	 * constructs a new ID3Tree
 	 * @param values
 	 */
-	public ID3Tree(HashMap<Integer, List<Features>> values) {
+	public ID3Tree(HashMap<Integer, List<Features>> values, double pvalue) {
 		ValueSize valueSize = new ValueSize(12000, values);
+		this.pvalue = pvalue;
 		this.overallNode = growTree(valueSize);
 	}
 	
 	public ID3TreeNode growTree(ValueSize values) {
 		int attribute = findAttribute(values);
-		int threshold = findThreshold(attribute, values.values);//(int) Math.floor(16.0 * Math.random()); //findThreshold(attribute, values);
+		int threshold = findThreshold(attribute, values.values);
+		nodeNum++;
 
-		//System.out.println(threshold);
-		// split the values according to a given attribute and threshold
 		ValueSize leftValues = splitValues(attribute, threshold, values.values, true);
-		//System.out.println(values.size());
-		//System.out.println(leftValues.size);
 		ValueSize rightValues = splitValues(attribute, threshold, values.values, false);
-		/*if (attributeNum < 2000) {
-			System.out.println(attribute + " " + threshold);
-			System.out.println(leftValues.size + " " + rightValues.size + "\n");
-		} */
-		//System.out.println(rightValues.size);
 		
 		// the whole data is pure
 		if (sameLabel(values.values)) {
-			attributeNum++;
 			return new ID3TreeNode(values.values, null, null, attribute, threshold);
 		// the values of the left branch is pure
 		} else if (isNotRelevant(attribute, values.values, leftValues, rightValues)) {
@@ -105,7 +97,7 @@ public class ID3Tree {
 	 */
 	private boolean isNotRelevant(int attribute,  HashMap<Integer, List<Features>> values, ValueSize leftValues,
 			ValueSize rightValues) {
-		double chiValue = Chi.critchi(P_VALUE, 25);
+		double chiValue = Chi.critchi(pvalue, 25);
 		double sValue = 0.0;
 		// j
 		for (int j = 0; j < NUM_ATTRIBUTE; j++) {
@@ -168,13 +160,9 @@ public class ID3Tree {
 	 * @return
 	 */
 	private boolean sameLabel(HashMap<Integer, List<Features>> values) {
-		//int count = 0;
 		int indicator = 0;
 		for (int label: values.keySet()) {
-			//if (values.get(label).size() != 0) {
-				//count += values.get(label).size();
-				if (values.get(label).size() != 0) {
-
+			if (values.get(label).size() != 0) {
 				indicator++;
 			}
 		}
@@ -196,7 +184,6 @@ public class ID3Tree {
 			}
 			double entropy1 = computeEntropySingleAttribute(leftValues, attribute);
 			double entropy2 = computeEntropySingleAttribute(rightValues, attribute);
-			//System.out.println(entropy1 + " + " + entropy2);
 			entropy = entropy1 + entropy2;
 			if (entropy < minEntropy) {
 				minEntropy = entropy;
@@ -212,7 +199,7 @@ public class ID3Tree {
 	 * @return the best attribute
 	 */
 	public int findAttribute(ValueSize values) {
-		int minAttribute = 0;//(int) Math.floor(16.0 * Math.random());
+		int minAttribute = 0;
 		double minEntropy = Double.MAX_VALUE;
 		for (int i = 1; i < 16; i++) {
 			double entropy = computeEntropySingleAttribute(values, i);
@@ -221,7 +208,6 @@ public class ID3Tree {
 				minAttribute = i;
 			}
 		}
-		//System.out.println(minAttribute);
 		return minAttribute;
 	}
 	
