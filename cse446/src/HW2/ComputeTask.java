@@ -38,7 +38,7 @@ public class ComputeTask extends RecursiveTask<Pair<Float, Float>> {
 					float predict = filter.predictRating(movieId, userId);
 					//count++;
 					float rating = movieRating.get(movieId);
-					if (Float.isNaN(predict) ) {
+					if (!Float.isNaN(predict) && !Float.isNaN(rating)) {
 						sumAbs += Math.abs(rating - predict);
 						//System.out.println(rating - predict);
 						sumSqr += Math.pow(rating - predict, 2);

@@ -104,7 +104,7 @@ public class PredictTask extends RecursiveTask<Pair<Float, Float>>{
 				denomRight += Math.pow(user2Rating - user2Avg, 2);
 			}
 		}
-		if (denomLeft != 0 && denomRight != 0) {
+		if (denomLeft != 0 && denomRight != 0 && !Float.isNaN(result)) {
 			result = nom / (float) Math.sqrt(denomLeft * denomRight);
 		}
 		//weightCache[user1][user2] = result;
