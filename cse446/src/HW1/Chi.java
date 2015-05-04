@@ -1,4 +1,4 @@
-package cse446;
+package HW1;
 
 public class Chi {
 

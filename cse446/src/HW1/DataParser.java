@@ -1,13 +1,27 @@
-package cse446;
+package HW1;
 
 import java.io.*;
 import java.util.*;
 
+/**
+ * Parse the given data files
+ * @author Dongchang
+ *
+ */
 public class DataParser {
-	public static void ParseData(HashMap<Integer, List<Features>> trainData,
+	
+	public static final int COUNT = 12000;
+	
+	/**
+	 * @param trainData the training data
+	 * @param testData the test data
+	 * @return a list that stores all the values
+	 */
+	public static LinkedList<Pair> ParseData(HashMap<Integer, List<Features>> trainData,
 			HashMap<Integer, List<Features>> testData) {
 		File file1 = new File("labels.txt");
 		File file2 = new File("features.txt");
+		LinkedList<Pair> retVal = new LinkedList<Pair>();
 		try {
 			Scanner input1 = new Scanner(file1);
 			Scanner input2 = new Scanner(file2);
@@ -26,11 +40,14 @@ public class DataParser {
 				while (lineInput.hasNextInt()) {
 					feature.add(lineInput.nextInt());
 				}
+				// parse the training data
 				if (count < 12000) {
 					if (!trainData.containsKey(label)) {
 						trainData.put(label, new ArrayList<Features>());
 					}
+					retVal.add(new Pair(label, feature));
 					trainData.get(label).add(new Features(feature));
+					// parse the test data
 				} else {
 					if (!testData.containsKey(label)) {
 						testData.put(label, new ArrayList<Features>());
@@ -45,5 +62,6 @@ public class DataParser {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		return retVal;
 	}
 }

@@ -1,21 +1,24 @@
-package cse446;
+package HW1;
 
 import java.util.*;
 
 public class ID3Tree {
 	
+	// the number of attributes in values
 	public static final int NUM_ATTRIBUTE = 16;
+	// the number of labels in values
 	public static final int NUM_LABEL = 26;
 	
 	// the number of attributes that have been split
 	public int nodeNum;
+	// the threshold for criterion set
 	public double pvalue;
-	
+	// the overall node of the tree
 	ID3TreeNode overallNode;
 	
 	/**
 	 * constructs a new ID3Tree
-	 * @param values
+	 * @param values the values of data
 	 */
 	public ID3Tree(HashMap<Integer, List<Features>> values, double pvalue) {
 		ValueSize valueSize = new ValueSize(12000, values);
@@ -23,26 +26,32 @@ public class ID3Tree {
 		this.overallNode = growTree(valueSize);
 	}
 	
+	/**
+	 * Grow a ID3 tree
+	 * @param values the values of data
+	 * @return a updated ID3 tree node
+	 */
 	public ID3TreeNode growTree(ValueSize values) {
 		int attribute = findAttribute(values);
 		int threshold = findThreshold(attribute, values.values);
 		nodeNum++;
-
+		
+		// split the current data into two parts based on the newly calculate
+		// attribute and theshold
 		ValueSize leftValues = splitValues(attribute, threshold, values.values, true);
 		ValueSize rightValues = splitValues(attribute, threshold, values.values, false);
 		
-		// the whole data is pure
 		if (sameLabel(values.values)) {
+			// the whole data is pure
 			return new ID3TreeNode(values.values, null, null, attribute, threshold);
-		// the values of the left branch is pure
 		} else if (isNotRelevant(attribute, values.values, leftValues, rightValues)) {
+			// the attribute is not relevant
 			return new ID3TreeNode(values.values, null, null, attribute, -1);
 		} else if (sameLabel(leftValues.values)) {
-
-			//System.out.println("I'm in");
+			// left split is pure
 			return new ID3TreeNode(leftValues.values, null, growTree(rightValues), attribute, threshold);
-		// the values of the right branch is pure
 		} else if (sameLabel(rightValues.values)) {
+			// right split is pure
 			return new ID3TreeNode(rightValues.values, growTree(leftValues), null, attribute, threshold);
 		} else {
 			return new ID3TreeNode(values.values, growTree(leftValues), growTree(rightValues), attribute, threshold);
@@ -50,32 +59,57 @@ public class ID3Tree {
 	}
 	
 	/**
-	 * predict the label of a given list of Featuress
-	 * @param Featuress
-	 * @return an integer that indicates the label of a given list of Featuress
+	 * predict the label of a given list of Features
+	 * @param Features a single feature of a value
+	 * @param node the updated ID3 tree node
+	 * @param path the updated current path from root
+	 * @return an integer that indicates the label of a given list of Features
 	 */
-	public int predict(Features features, ID3TreeNode node) {
+	public int predict(Features features, ID3TreeNode node, HashMap<List<Integer>, Integer> map,
+			List<Integer> path) {
 		if (node.left == null && node.right == null) {
-			return findMostCommonLabel(node.classes);
-		} else if (node.threshold == -1) {
+			insertMap(map, path);
 			return findMostCommonLabel(node.classes);
 		} else if (features.getFeature(node.attribute) < node.threshold) {
 			if (node.left == null) {
+				insertMap(map, path);
 				return findMostCommonLabel(node.classes);
 			}
-			return predict(features, node.left);
+			// negative values indicates goes left from the current node
+			// first two digits store attribute and the last two store threshold 
+			path.add(-node.attribute * 100 - node.threshold);
+			return predict(features, node.left, map, path);
 		} else {
 			if (node.right == null) {
+				insertMap(map, path);
 				return findMostCommonLabel(node.classes);
 			}
-			return predict(features, node.right);
+			// positive values indicates goes left from the current node
+			// first two digits store attribute and the last two store threshold 
+			path.add(node.attribute * 100 + node.threshold);
+			return predict(features, node.right, map, path);
+		}
+	}
+	
+	/**
+	 * Update path and its corresponding counts
+	 * @param map map stores all paths and their correspond counts
+	 * @param path the current path
+	 */
+	private static void insertMap(HashMap<List<Integer>, Integer> map, List<Integer> path) {
+		if (!map.containsKey(path)) {
+			map.put(path, 1);
+		} else {
+			int count = map.get(path);
+			count++;
+			map.put(path, count);
 		}
 	}
 	
 	/**
 	 * find the most common labels of a given set of values
-	 * @param features
-	 * @return
+	 * @param features signle features of a value
+	 * @return the most common label
 	 */
 	private int findMostCommonLabel(HashMap<Integer, List<Features>> values) {
 		int maxSize = 0;
@@ -91,15 +125,14 @@ public class ID3Tree {
 	
 	/**
 	 * test whether an attribute is relevant based on Chi values 
-	 * @param attribute
-	 * @param values
-	 * @return
+	 * @param attribute the attribute to be examined
+	 * @param values the data values
+	 * @return whether an attribute is relevant
 	 */
 	private boolean isNotRelevant(int attribute,  HashMap<Integer, List<Features>> values, ValueSize leftValues,
 			ValueSize rightValues) {
 		double chiValue = Chi.critchi(pvalue, 25);
 		double sValue = 0.0;
-		// j
 		for (int j = 0; j < NUM_ATTRIBUTE; j++) {
 			ValueSize valueSize = getFeaturesOfValue(attribute, j, values);				
 			double e1j = valueSize.size * leftValues.size / (double) (leftValues.size + rightValues.size);
@@ -112,16 +145,16 @@ public class ID3Tree {
 				sValue += s1 + s2;
 			}
 		}
-		return sValue < chiValue;
+		return sValue <= chiValue;
 	}
 	
 	/**
 	 * split the training data set in two according to the threshold of values
-	 * @param attribute
-	 * @param threshold
-	 * @param values
-	 * @param indicator
-	 * @return
+	 * @param attribute the attribute to split
+	 * @param threshold the threshold of attribute to split
+	 * @param values the data values
+	 * @param indicator whether return left split or right split
+	 * @return either the left split or the right split
 	 */
 	private ValueSize splitValues
 		(int attribute, int threshold, HashMap<Integer, List<Features>> values, boolean indicator) {
@@ -136,7 +169,6 @@ public class ID3Tree {
 			for (Features singleFeatures: features) {
 				// the left split of the values 
 				if (indicator) {
-					//System.out.println(label);
 					if (singleFeatures.getFeature(attribute) < threshold) {
 						newValues.get(label).add(singleFeatures);
 						count++;
@@ -156,8 +188,8 @@ public class ID3Tree {
 	
 	/**
 	 * return whether a class has the same label
-	 * @param values
-	 * @return
+	 * @param values the data values
+	 * @return whether a class has the same label
 	 */
 	private boolean sameLabel(HashMap<Integer, List<Features>> values) {
 		int indicator = 0;
@@ -171,6 +203,9 @@ public class ID3Tree {
 	
 	/**
 	 * find the threshold of a given attribute
+	 * @param attribute the attribute whose theshold would be computed
+	 * @param values the values of data
+	 * @return the best theshold for a attribute
 	 */
 	public int findThreshold(int attribute, HashMap<Integer, List<Features>> values) {
 		double minEntropy = Double.MAX_VALUE;
@@ -195,8 +230,8 @@ public class ID3Tree {
 	
 	/**
 	 * find the best attribute of a given set of values
-	 * @param values
-	 * @return the best attribute
+	 * @param values the valus of data
+	 * @return the best attribute with least conditional entropy
 	 */
 	public int findAttribute(ValueSize values) {
 		int minAttribute = 0;
@@ -212,9 +247,11 @@ public class ID3Tree {
 	}
 	
 	/**
-	 * given a attribute and return all the values with the same value of 
-	 * attribute
-	 * @return
+	 * given a attribute and return all the values with the same value of attribute
+	 * @param attribute the given attribute
+	 * @param value the given value of one attribute
+	 * @param values the values of data
+	 * @return the values with the same value of the given attribute
 	 */
 	private ValueSize getFeaturesOfValue(int attribute, int value, HashMap<Integer, List<Features>> values) {
 		HashMap<Integer, List<Features>> newValues = new HashMap<Integer, List<Features>>();
@@ -236,7 +273,9 @@ public class ID3Tree {
 	
 	/**
 	 * compute the entropy of a given set of values
-	 * @return
+	 * @param values the values of data
+	 * @param attribute the attribute that the entropy would be computed
+	 * @return the entropy of the attribute
 	 */
 	private double computeEntropySingleAttribute(ValueSize values, int attribute) {
 		double totalEntropy = 0.0;
@@ -253,14 +292,8 @@ public class ID3Tree {
 					}
 				}
 			}
-				//System.out.println(entropy);
-				//System.out.println(valueSize.values.get(j).size()  + " " + p2);
-
-			//System.out.println(entropy);
 			totalEntropy += p1 * entropy;
-			//System.out.print(" " + totalEntropy + ", " + p1 * entropy);
 		}
-		//System.out.println(totalEntropy);
 		return totalEntropy;
 	}
 	

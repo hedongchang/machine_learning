@@ -1,11 +1,17 @@
-package cse446;
+package HW1;
 
-import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Features contains different attributes and each attribute
+ * has a corresponding value
+ * @author Dongchang
+ *
+ */
 public class Features {
-	public ArrayList<Integer> features;
+	public List<Integer> features;  // the list of attribute values
 	
-	public Features(ArrayList<Integer> features) {
+	public Features(List<Integer> features) {
 		this.features = features;
 	}
 	
