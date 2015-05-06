@@ -17,11 +17,11 @@ public class CollabFilter {
 	}
 	
 	
-	public float predictRating(int movie, int user) {
+	public synchronized float predictRating(int movie, int user) {
 		float result = 0;
 		if (data.containsKey(user)) {
-			/*float partialResult = 0.0;
-			float sumWeight = 0.0;
+			float partialResult = 0;
+			float sumWeight = 0;
 			float userAvg = computeAverage(data.get(user));
 			for (int i = 0; i < userList.length; i++) {
 				int collabUser = userList[i];
@@ -32,13 +32,13 @@ public class CollabFilter {
 					partialResult += weight * (rating - collabUserAvg);
 					sumWeight = sumWeight + weight;
 				}
-			}*/
-			float userAvg = computeAverage(data.get(user));
-			PredictTask predictTask = new PredictTask(0, userList.length, data, userList, user, movie, userAvg);
-			Pair<Float, Float> pair = fjPool.invoke(predictTask);
-			if (pair.a != 0 && !pair.a.isNaN() && !pair.b.isNaN()) {
-				result = userAvg + (1 / pair.b) * pair.a;
 			}
+			/*float userAvg = computeAverage(data.get(user));
+			PredictTask predictTask = new PredictTask(0, userList.length, data, userList, user, movie, userAvg);
+			Pair<Float, Float> pair = fjPool.invoke(predictTask);*/
+			//if (pair.a != 0 && !pair.a.isNaN() && !pair.b.isNaN()) {
+				result = userAvg + (1 / sumWeight) * partialResult;
+			//}
 			//System.out.println(result);
 		}
 		return result;
@@ -56,41 +56,39 @@ public class CollabFilter {
 		}
 	}
 	
-	/*private float computeWeight(int user1, int user2, float user1Avg, float user2Avg) {
-		float nom = 0.0;
-		float denomLeft = 0.0;
-		float denomRight = 0.0;
-		float result = 0.0;
+	private float findRating(int user, int movie) {
+		HashMap<Integer, Float> movies = this.data.get(user);
+		if (!movies.containsKey(movie)) {
+			return -1;
+		}
+		return movies.get(movie);
+	}
+	
+	private synchronized float computeWeight(int user1, int user2, float user1Avg, float user2Avg) {
+		float nom = 0;
+		float denomLeft = 0;
+		float denomRight = 0;
+		float result = 0;
 		
 		// find the intersection of two users' movies
-		HashMap<Integer, float> user1MovieRating = new HashMap<Integer, float>();
+		HashMap<Integer, Float> user1MovieRating = data.get(user1);
+		HashMap<Integer, Float> user2MovieRating = data.get(user2);
 		
-		for (MovieInstance movie: data.get(user1)) {
-			user1MovieRating.put(movie.movie, movie.rating);
-		}
-		for (MovieInstance movie: data.get(user2)) {
-			int movieId = movie.movie;
+		for (int movieId: user2MovieRating.keySet()) {
 			if (user1MovieRating.containsKey(movieId)) {
+				float user2Rating = user2MovieRating.get(movieId);
 				float user1Rating = user1MovieRating.get(movieId);
-				nom += (user1Rating - user1Avg) * (movie.rating - user2Avg);
+				nom += (user1Rating - user1Avg) * (user2Rating - user2Avg);
 				denomLeft += Math.pow(user1Rating - user1Avg, 2);
-				denomRight += Math.pow(movie.rating - user2Avg, 2);
+				denomRight += Math.pow(user2Rating - user2Avg, 2);
 			}
 		}
-		if (denomLeft != 0 && denomRight != 0) {
-			result = nom / Math.sqrt(denomLeft * denomRight);
+		if (denomLeft != 0 && denomRight != 0 && !Float.isNaN(result)) {
+			result = nom / (float) Math.sqrt(denomLeft * denomRight);
 		}
 		//weightCache[user1][user2] = result;
 		return result;
 	}
 	
-	private float findRating(int user, int movie) {
-		List<MovieInstance> movies = data.get(user);
-		for (MovieInstance singleMovie: movies) {
-			if (singleMovie.movie == movie) {
-				return singleMovie.rating;
-			}
-		}
-		return -1;
-	}*/
+	
 }

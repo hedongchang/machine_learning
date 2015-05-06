@@ -13,6 +13,6 @@ public class Pair<A, B> {
 	public int hashCode() {
 		int a = (Integer) this.a;
 		int b = (Integer) this.b;
-		return (a + b) * 100000 + (a - b);
+		return (a + b) * 100000000 + (a - b);
 	}
 }
