@@ -1,4 +1,4 @@
-package hw2_duplicate;
+package hw2_version1;
 
 import java.util.*;
 import java.io.*;
@@ -6,39 +6,42 @@ import java.io.*;
 public class CollabMain {
 	
 	public static final int TRAIN_USER_NUM = 28978;
-	//public static final int TEST_NUM = 1000;
+	public static final int TEST_NUM = 1000;
 	
 	public static void main(String[] args) {
 		System.out.println("parse data...");
 		HashMap<Integer, HashMap<Integer, Integer>> trainData = new HashMap<Integer, HashMap<Integer, Integer>>();
 		HashMap<Integer, HashMap<Integer, Integer>> movieUser = new HashMap<Integer, HashMap<Integer, Integer>>();
-		HashMap<Integer, Integer> userIndex = new HashMap<Integer, Integer>();
 		DataParser.parseData(trainData, movieUser);
+		System.out.println("parse complete");
 		int[] trainUser = new int[TRAIN_USER_NUM];
 		
-		System.out.println("copy users...");
 		int index = 0;
 		for (int userId: trainData.keySet()) {
 			trainUser[index] = userId;
-			userIndex.put(userId, index);
 			index++;
 		}
-		CollabFilter filter = new CollabFilter(trainData, movieUser, trainUser, userIndex);
+		CollabFilter filter = new CollabFilter(trainData, movieUser, trainUser);
 		try {
 			Scanner input = new Scanner(new File("TestingRatings.txt"));
 			PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
 			writer.println("haha");
-			double sumAbs = 0.0;
-			double sumSqr = 0.0;
+			Double sumAbs = 0.0;
+			Double sumSqr = 0.0;
 			int count = 0;
+			HashSet<Integer> testUserSet = new HashSet<Integer>();
+			int testUser = 0;
 			while (input.hasNextLine()) {
-			//for (int i = 0; i < TEST_NUM; i++) {
 				String line = input.nextLine();
 				String[] features = line.split(",");
 				int movieId = Integer.parseInt(features[0]);
 				int userId = Integer.parseInt(features[1]);
 				int rating = (int) Double.parseDouble(features[2]);
-				double predict = filter.predict(userId, movieId);
+				if (!testUserSet.contains(userId)) {
+					testUserSet.add(userId);
+					testUser++;
+				}
+				double predict = filter.predict(userId, movieId, testUser);
 				sumAbs += Math.abs(predict - rating);
 				sumSqr += Math.pow(predict - rating, 2);
 				count++;

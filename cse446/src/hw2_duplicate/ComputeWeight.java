@@ -51,7 +51,7 @@ public class ComputeWeight extends RecursiveTask<Pair<Double, Double>> {
 									double user2Rating = trainData.get(user2Id).get(movie);
 									double user1Avg = userAverage.get(userId);
 									double user2Avg = userAverage.get(user2Id);
-									nom += (user1Rating - user1Avg) * (user1Rating - user1Avg);
+									nom += ((user1Rating - user1Avg) * (user2Rating - user2Avg));
 									denomLeft += Math.pow(user1Rating - user1Avg, 2);
 									denomRight += Math.pow(user2Rating - user2Avg, 2);	
 								}
@@ -91,7 +91,7 @@ public class ComputeWeight extends RecursiveTask<Pair<Double, Double>> {
 					}
 					if (!Double.isNaN(partial) && !Double.isNaN((double) weight)&& !Double.isNaN(sumWeight)) {
 						partial += weight * (trainData.get(user2Id).get(movieId) - userAverage.get(user2Id));
-						sumWeight += weight;
+						sumWeight += Math.abs(weight);
 					}
 				}
 			}

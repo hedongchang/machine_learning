@@ -1,4 +1,4 @@
-package hw2_duplicate;
+package hw2_version1;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
@@ -7,41 +7,36 @@ public class CollabFilter {
 	
 	public static final int TRAIN_USER_NUM = 28978;
 	
-	public float[][] cache = new float[TRAIN_USER_NUM][TRAIN_USER_NUM];
+	public static double[][] cache = new double[TRAIN_USER_NUM][TRAIN_USER_NUM];
 		
 	public HashMap<Integer, HashMap<Integer, Integer>> trainData;
 	public HashMap<Integer, HashMap<Integer, Integer>> movieUser;
-	public HashMap<Integer, Integer> userIndex;
+	public HashMap<Integer, Double> moviePartial;
+	public HashMap<Integer, Integer> trainUserIndex;
+	public HashMap<Integer, HashMap<Integer, Double>> usersWeight;
 	public int[] trainUser;
 	public HashMap<Integer, Double> userAverage;
 	
 	public static ForkJoinPool fjPool = new ForkJoinPool();
 	
 	public CollabFilter(HashMap<Integer, HashMap<Integer, Integer>> trainData,
-			HashMap<Integer, HashMap<Integer, Integer>> movieUser, int[] trainUser,
-			HashMap<Integer, Integer> userIndex) {
-		System.out.println("construct average...");
+			HashMap<Integer, HashMap<Integer, Integer>> movieUser, int[] trainUser) {
 		this.trainUser = trainUser;
 		this.trainData = trainData;
 		this.movieUser = movieUser;
-		this.userIndex = userIndex;
 		this.userAverage = computeAverage();
-		System.out.println("construct weight...");
-		constructCache(this.cache);
-		System.out.println("start predict...");
+		this.usersWeight = new HashMap<Integer, HashMap<Integer, Double>>();
 	}
 	
-	private void constructCache(float[][] cache) {
-		fjPool.invoke(new ComputeCache(0, TRAIN_USER_NUM, cache, userAverage, trainData, trainUser));
-	}
-	
-	public double predict(int userId, int movieId) {
+	public Double predict(int userId, int movieId, int testUser) {
 		double userAvg = userAverage.get(userId);
 		double sumWeight = 0;
 		double partial = 0;
 		double weight = 0;
-		for (int user2Id: movieUser.get(movieId).keySet()) {
-			weight = cache[userIndex.get(userId)][userIndex.get(user2Id)];		
+		for (int user2Id: trainData.keySet()) {
+			if (trainData.get(user2Id).containsKey(movieId)) {
+				weight = 1;//cache[trainUserIndex.get(userId)][trainUserIndex.get(user2Id)];		
+			}
 			partial += (weight * (trainData.get(user2Id).get(movieId) - userAverage.get(user2Id)));
 			sumWeight += Math.abs(weight);
 		}
