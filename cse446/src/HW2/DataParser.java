@@ -1,52 +1,67 @@
 package HW2;
 
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
+/**
+ * Parse the data in given files
+ * @author Dongchang
+ */
 public class DataParser {
-	public static int parseData(HashMap<Integer, HashMap<Integer, Float>> trainData, 
-			HashMap<Integer, HashMap<Integer, Float>> testData, int[] userList, int[] userTrainList) {
-		File file1 = new File("TrainingRatings.txt");
-		File file2 = new File("TestingRatings.txt");
+	public static final String EXTRA = "movie_titles.txt";
+	
+	/**
+	 * Parse the data of the given file
+	 * @param the file name to be parsed
+	 * @param trainData a map whose key is user id and values is a map from movie id to rating
+	 * @param movieUser a map whose key is movie id and values is a map from user id to rating
+	 * @return the number of training users
+	 */
+	public static int parseData(HashMap<Integer, HashMap<Integer, Integer>> trainData, 
+			HashMap<Integer, HashMap<Integer, Integer>> movieUser, String file) {
 		int count = 0;
 		try {
-			Scanner input1 = new Scanner(file1);
-			Scanner input2 = new Scanner(file2);
-			parseOneFile(input1, trainData);
-			count = parseOneFile(input2, testData);
-			int index = 0;
-			for (int user: testData.keySet()) {
-				userList[index] = user;
-				index++;
+			Scanner input = new Scanner(new File(file));
+			while (input.hasNextLine()) {
+				String line = input.nextLine();
+				String[] features = line.split(",");
+				int movieId = Integer.parseInt(features[0]);
+				int userId = Integer.parseInt(features[1]);
+				int rating = (int) Float.parseFloat(features[2]);
+				if (!trainData.containsKey(userId)) {
+					count++;
+					trainData.put(userId, new HashMap<Integer, Integer>());
+				}
+				trainData.get(userId).put(movieId, rating);
+				if (!movieUser.containsKey(movieId)) {
+					movieUser.put(movieId, new HashMap<Integer, Integer>());
+				}
+				movieUser.get(movieId).put(userId, rating);
 			}
-			int index1 = 0;
-			System.out.println(trainData.keySet().size());
-			for (int user: trainData.keySet())  {
-				userTrainList[index1] = user;
-				index1++;
-			}
-			input1.close();
-			input2.close();
+			input.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		return count;
 	}
 	
-	private static int parseOneFile(Scanner input, HashMap<Integer, HashMap<Integer, Float>> userMovieRating) {
-		int count = 0;
-		while (input.hasNextLine()) {
-			count++;
-			String line = input.nextLine();
-			String[] lineInput = line.split(",");
-			int movie = Integer.parseInt(lineInput[0]);
-			int user = Integer.parseInt(lineInput[1]);
-			float rating = Float.parseFloat(lineInput[2]);
-			if (!userMovieRating.containsKey(user)) {
-				userMovieRating.put(user, new HashMap<Integer, Float>());
+	/**
+	 * Parse a map from movie id to its name
+	 * @param movieIdName a map from movie id to its name
+	 */
+	public static void parseExtra(HashMap<Integer, String> movieIdName) {
+		try {
+			Scanner input1 = new Scanner(new File(EXTRA));
+			while (input1.hasNextLine()) {
+				String line = input1.nextLine();
+				String[] data = line.split(",");
+				int movieId = Integer.parseInt(data[0]);
+				String name = data[2];
+				movieIdName.put(movieId, name);
 			}
-			userMovieRating.get(user).put(movie, rating);
+			input1.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		return count;
 	}
 }
