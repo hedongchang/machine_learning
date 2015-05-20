@@ -4,12 +4,12 @@ import java.io.*;
 import java.util.*;
 
 public class DataParser {
-	public static long[] parseData(HashMap<String, Integer> spamData, HashMap<String, Integer> hamData) {
+	public static int[] parseData(Map<String, Integer> spamData, Map<String, Integer> hamData) {
 		File train = new File("train.txt");
 		int spamCount = 0;
 		int hamCount = 0;
-		long spamWord = 0;
-		long hamWord = 0;
+		int spamWord = 0;
+		int hamWord = 0;
 		try {
 			Scanner input = new Scanner(train);
 			while (input.hasNextLine()) {
@@ -28,10 +28,10 @@ public class DataParser {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		return new long[] {spamCount, hamCount, spamWord, hamWord};
+		return new int[] {spamCount, hamCount, spamWord, hamWord};
 	}
 	
-	public static int parseMap(String[] lineInput, HashMap<String, Integer> data) {
+	public static int parseMap(String[] lineInput, Map<String, Integer> data) {
 		int totalCount = 0;
 		for (int i = 2; i < lineInput.length; i = i + 2) {
 			String word = lineInput[i];

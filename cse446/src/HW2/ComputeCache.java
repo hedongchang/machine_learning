@@ -75,7 +75,8 @@ public class ComputeCache extends RecursiveAction {
 					} else {
 						// if it is not default voting, calculate weights according to union of
 						// two users' movies
-						Set<Integer> unionSet = trainData.get(user1Id).keySet();
+						Set<Integer> unionSet = new HashSet<Integer>();
+						unionSet.addAll(trainData.get(user1Id).keySet());
 						unionSet.addAll(trainData.get(user2Id).keySet());
 						for (int movie: unionSet) {
 							double user1Rating = userAverage.get(user1Id);
