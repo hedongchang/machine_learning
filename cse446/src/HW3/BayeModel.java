@@ -19,18 +19,6 @@ public class BayeModel {
 		this.m = getM();
 		this.spamPercent = getPercentage(m, 0);
 		this.hamPercent = getPercentage(m, 1);
-		int total = 0;
-		for (String word: spamData.keySet()) {
-			int count = spamData.get(word);
-			total += count;
-		}
-		System.out.println(total + " " + result[2] + " " + spamData.keySet().size());
-		double totalP = 0;
-		for (String word: spamPercent.keySet()) {
-			double count = spamPercent.get(word);
-			totalP += count;
-		}
-		System.out.println(totalP);
 	}
 	
 	public Map<String, Double> getPercentage(int m, int indicator) {

@@ -44,13 +44,13 @@ public class BayeController {
 		Queue<Pair<String, Double>> spamTop5 = model.getTopFive(0);		
 		for (int i = 0; i < 5; i++) {
 			Pair<String, Double> res = spamTop5.poll();
-			System.out.println(res.a + " " + res.b);
+			System.out.println(res.a + " " + 100 * res.b);
 		}
 		System.out.println("\nthe percentage of ham: " + 100.0 * result[1] / (result[0] + result[1]) + "%");
 		Queue<Pair<String, Double>> hamTop5 = model.getTopFive(1);
 		for (int i = 0; i < 5; i++) {
 			Pair<String, Double> res = hamTop5.poll();
-			System.out.println(res.a + " " + res.b);
+			System.out.println(res.a + " " + 100 * res.b + "%");
 		}
 	}
 }
