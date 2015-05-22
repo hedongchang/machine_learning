@@ -8,7 +8,7 @@ import HW1.*;
  * @author Dongchang
  */
 public class BaggingController {
-	public static final double[] NUM_P = {0.01, 0.05, 1};
+	public static final double[] NUM_P = {1, 0.05, 0.01};
 	public static final int NUM_TREE = 40;
 	public static void main(String[] args) {
 		HashMap<Integer, List<Features>> trainData = new HashMap<Integer, List<Features>>();
@@ -17,7 +17,7 @@ public class BaggingController {
 		// run with different values for p
 		for (double p: NUM_P) {
 			// construct bagging from various number of samples
-			for (int numTrain = 1; numTrain <= NUM_TREE; numTrain++) {
+			for (int numTrain = 40; numTrain >= 30; numTrain--) {
 				HashSet<ID3Tree> trees = new HashSet<ID3Tree>();
 				for (int i = 1; i <= numTrain; i++) {
 					// select 12000 samples from data values
