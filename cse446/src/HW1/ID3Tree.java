@@ -14,7 +14,7 @@ public class ID3Tree {
 	// the threshold for criterion set
 	public double pvalue;
 	// the overall node of the tree
-	ID3TreeNode overallNode;
+	public ID3TreeNode overallNode;
 	
 	/**
 	 * constructs a new ID3Tree

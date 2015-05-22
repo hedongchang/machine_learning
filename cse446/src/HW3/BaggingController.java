@@ -1,20 +1,23 @@
-package HW1;
+package HW3;
 
 import java.util.*;
+import HW1.*;
 
 /**
- * Implement a random forest algorithm that increase the accuracy of ID3 tre
+ * Implement a bagging algorithm that increase the accuracy of ID3 tree
  * @author Dongchang
  */
-public class RandomForest {
+public class BaggingController {
 	public static final double[] NUM_P = {0.01, 0.05, 1};
-	
+	public static final int NUM_TREE = 40;
 	public static void main(String[] args) {
 		HashMap<Integer, List<Features>> trainData = new HashMap<Integer, List<Features>>();
 		HashMap<Integer, List<Features>> testData = new HashMap<Integer, List<Features>>();
-		List<Pair> retVal = DataParser.ParseData(trainData, testData);
+		List<HW1.Pair> retVal = HW1.DataParser.ParseData(trainData, testData);
+		// run with different values for p
 		for (double p: NUM_P) {
-			for (int numTrain = 1; numTrain <= 40; numTrain++) {
+			// construct bagging from various number of samples
+			for (int numTrain = 1; numTrain <= NUM_TREE; numTrain++) {
 				HashSet<ID3Tree> trees = new HashSet<ID3Tree>();
 				for (int i = 1; i <= numTrain; i++) {
 					// select 12000 samples from data values
@@ -24,7 +27,8 @@ public class RandomForest {
 				}
 				// the accuracy of test data
 				System.out.println("p-value " + p + " number of train " + numTrain + " accuracy " +
-						calculatePredict(testData, trees, 8000, new HashMap<List<Integer>, Integer>()));
+						calculatePredict(testData, trees, 8000, new HashMap<List<Integer>, Integer>()) 
+						+ "%");
 			}
 		}
 		
@@ -73,7 +77,7 @@ public class RandomForest {
 	}
 	
 	/**
-	 * Get 
+	 * Get the most frequent prediction
 	 * @param map map stores each path and its corresponding counts
 	 * @return 
 	 */
@@ -97,7 +101,7 @@ public class RandomForest {
 	 * @return a map that store label and features
 	 */
 	private static HashMap<Integer, List<Features>> 
-		selectSample(List<Pair> retVal, int numSample) {
+		selectSample(List<HW1.Pair> retVal, int numSample) {
 		HashMap<Integer, List<Features>> retMap = new HashMap<Integer, List<Features>>();
 		for (int i = 1; i <= numSample; i++) {
 			int index = (int) Math.floor(numSample * Math.random());
