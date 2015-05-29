@@ -16,6 +16,8 @@ public class ID3TreeNode {
 	public int attribute;  // current attribute
 	public int threshold;   // current threshold
 	
+	public int height;
+	
 	public ID3TreeNode(HashMap<Integer, List<Features>> classes, ID3TreeNode left, ID3TreeNode right, int attribute,
 			int threshold) {
 		this.classes = classes;
@@ -23,6 +25,7 @@ public class ID3TreeNode {
 		this.right = right;
 		this.attribute = attribute;
 		this.threshold = threshold;
+		this.height = 0;
 	}
 
 }

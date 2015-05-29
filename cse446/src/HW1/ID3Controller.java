@@ -20,14 +20,14 @@ public class ID3Controller {
 			// constructs a new ID3 tree
 			ID3Tree idtree = new ID3Tree(trainData, pValue);
 			// prints out the total number of nodes in the tree
-			System.out.println(idtree.nodeNum);
+			System.out.println("total number of nodes is " + idtree.nodeNum);
 			// map stores each path of the tree and its corresponding count
 			HashMap<List<Integer>, Integer> map = new HashMap<List<Integer>, Integer>();
 			// labels stores each path of the tree and its corresponding label
 			HashMap<List<Integer>, Set<Integer>> labels = new HashMap<List<Integer>, Set<Integer>>();
 			// get the prediction accuracy for test data
 			System.out.println("The percentage of correct prediction for test data is " 
-					+ calculatePredict(testData, idtree, 8000, map, labels) + "\n");
+					+ calculatePredict(testData, idtree, 187, map, labels) + "%");
 			
 			// sort stores the count of each path and the path itself
 			// it helps to sort the path according to its count
@@ -45,7 +45,7 @@ public class ID3Controller {
 			}
 			// find all the information about five paths that has most counts
 			// in a given ID3 tree
-			int i = 1;
+			/*int i = 1;
 			while (i <= 5) {
 				// get the current most counts
 				int count = keys.last();
@@ -81,9 +81,9 @@ public class ID3Controller {
 				// 
 				System.out.println(count + "\n");
 			}
-			// get the prediction accuracy for training data
+			// get the prediction accuracy for training data*/
 			System.out.println("The percentage of correct prediction for train data is " 
-					+ calculatePredict(trainData, idtree, 12000, map, labels) + "\n");
+					+ calculatePredict(trainData, idtree, 80, map, labels) + "%\n");
 		}	
 	}
 	

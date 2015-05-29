@@ -16,6 +16,8 @@ public class ID3Tree {
 	// the overall node of the tree
 	public ID3TreeNode overallNode;
 	
+	public static final int MAX_DEPTH = 100;
+	
 	/**
 	 * constructs a new ID3Tree
 	 * @param values the values of data
@@ -23,7 +25,7 @@ public class ID3Tree {
 	public ID3Tree(HashMap<Integer, List<Features>> values, double pvalue) {
 		ValueSize valueSize = new ValueSize(12000, values);
 		this.pvalue = pvalue;
-		this.overallNode = growTree(valueSize);
+		this.overallNode = growTree(valueSize, 0);
 	}
 	
 	/**
@@ -31,16 +33,17 @@ public class ID3Tree {
 	 * @param values the values of data
 	 * @return a updated ID3 tree node
 	 */
-	public ID3TreeNode growTree(ValueSize values) {
+	public ID3TreeNode growTree(ValueSize values, int height) {
 		int attribute = findAttribute(values);
 		int threshold = findThreshold(attribute, values.values);
 		nodeNum++;
-		
 		// split the current data into two parts based on the newly calculate
 		// attribute and theshold
 		ValueSize leftValues = splitValues(attribute, threshold, values.values, true);
 		ValueSize rightValues = splitValues(attribute, threshold, values.values, false);
-		
+		if (height >= MAX_DEPTH) {
+			return new ID3TreeNode(values.values, null, null, attribute, threshold);
+		}
 		if (sameLabel(values.values)) {
 			// the whole data is pure
 			return new ID3TreeNode(values.values, null, null, attribute, threshold);
@@ -49,12 +52,15 @@ public class ID3Tree {
 			return new ID3TreeNode(values.values, null, null, attribute, -1);
 		} else if (sameLabel(leftValues.values)) {
 			// left split is pure
-			return new ID3TreeNode(leftValues.values, null, growTree(rightValues), attribute, threshold);
+			height++;
+			return new ID3TreeNode(leftValues.values, null, growTree(rightValues, height), attribute, threshold);
 		} else if (sameLabel(rightValues.values)) {
 			// right split is pure
-			return new ID3TreeNode(rightValues.values, growTree(leftValues), null, attribute, threshold);
+			height++;
+			return new ID3TreeNode(rightValues.values, growTree(leftValues, height), null, attribute, threshold);
 		} else {
-			return new ID3TreeNode(values.values, growTree(leftValues), growTree(rightValues), attribute, threshold);
+			height++;
+			return new ID3TreeNode(values.values, growTree(leftValues, height), growTree(rightValues, height), attribute, threshold);
 		}
 	}
 	
@@ -181,6 +187,9 @@ public class ID3Tree {
 					}
 				}
 			}
+			if (newValues.get(label).isEmpty()) {
+				newValues.remove(label);
+			}
 		}
 		return new ValueSize(count, newValues);
 	}
@@ -192,13 +201,7 @@ public class ID3Tree {
 	 * @return whether a class has the same label
 	 */
 	private boolean sameLabel(HashMap<Integer, List<Features>> values) {
-		int indicator = 0;
-		for (int label: values.keySet()) {
-			if (values.get(label).size() != 0) {
-				indicator++;
-			}
-		}
-		return indicator < 2;
+		return values.keySet().size() == 1;
 	}
 	
 	/**
@@ -295,5 +298,13 @@ public class ID3Tree {
 			totalEntropy += p1 * entropy;
 		}
 		return totalEntropy;
+	}
+	
+	public int getHeight(ID3TreeNode node) {
+		if (node == null) {
+			return -1;
+		} else {
+			return Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+		}
 	}
 }
