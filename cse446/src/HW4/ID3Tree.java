@@ -16,7 +16,7 @@ public class ID3Tree {
 	// the overall node of the tree
 	public ID3TreeNode overallNode;
 	
-	public static final int MAX_DEPTH = 10;
+	public static final int MAX_DEPTH = 1;
 	
 	/**
 	 * constructs a new ID3Tree
@@ -59,12 +59,7 @@ public class ID3Tree {
 	 */
 	public int predict(Features features, ID3TreeNode node) {
 		if (node.left == null && node.right == null) {
-			for (int label: node.classes.keySet()) {
-				if (node.classes.get(label).size() != 0) {
-					return label;
-				}
-			}
-			return -1;
+			return findMostCommonLabel(node.classes);
 		} else if (features.getFeature(node.attribute) == 0) {
 			// negative values indicates goes left from the current node
 			// first two digits store attribute and the last two store threshold 
@@ -74,6 +69,18 @@ public class ID3Tree {
 			// first two digits store attribute and the last two store threshold 
 			return predict(features, node.right);
 		}
+	}
+	
+	private int findMostCommonLabel(HashMap<Integer, List<Features>> values) {
+		int maxSize = 0;
+		int maxLabel = 0;
+		for (Integer label: values.keySet()) {
+			if (values.get(label).size() > maxSize) {
+				maxSize = values.get(label).size();
+				maxLabel = label;
+			}
+		}
+		return maxLabel;
 	}
 	
 	/**
