@@ -109,7 +109,7 @@ public class Chi {
                      search for a value within CHI_EPSILON,
                      relying on the monotonicity of pochisq().  */
 
-	static double critchi(double p, int df) {
+	public static double critchi(double p, int df) {
 		double CHI_EPSILON = 0.000001;   /* Accuracy of critchi approximation */
 		double CHI_MAX = 99999.0;        /* Maximum chi-square value */
 		double minchisq = 0.0;

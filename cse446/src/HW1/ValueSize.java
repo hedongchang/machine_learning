@@ -8,8 +8,8 @@ import java.util.*;
  *
  */
 public class ValueSize {
-	int size; // the number of values in values
-	HashMap<Integer, List<Features>> values; // the values of data
+	public int size; // the number of values in values
+	public HashMap<Integer, List<Features>> values; // the values of data
 	
 	public ValueSize(int size, HashMap<Integer, List<Features>> values) {
 		this.size = size;
