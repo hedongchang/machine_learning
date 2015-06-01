@@ -16,7 +16,7 @@ public class ID3Tree {
 	// the overall node of the tree
 	public ID3TreeNode overallNode;
 	
-	public static final int MAX_DEPTH = 100;
+	public static final int MAX_DEPTH = 1000;
 	
 	/**
 	 * constructs a new ID3Tree
@@ -41,15 +41,15 @@ public class ID3Tree {
 		// attribute and theshold
 		ValueSize leftValues = splitValues(attribute, threshold, values.values, true);
 		ValueSize rightValues = splitValues(attribute, threshold, values.values, false);
-		if (height >= MAX_DEPTH) {
+		/*if (height >= MAX_DEPTH) {
 			return new ID3TreeNode(values.values, null, null, attribute, threshold);
-		}
+		}*/
 		if (sameLabel(values.values)) {
 			// the whole data is pure
 			return new ID3TreeNode(values.values, null, null, attribute, threshold);
-		} else if (isNotRelevant(attribute, values.values, leftValues, rightValues)) {
+		//} else if (isNotRelevant(attribute, values.values, leftValues, rightValues)) {
 			// the attribute is not relevant
-			return new ID3TreeNode(values.values, null, null, attribute, -1);
+			//return new ID3TreeNode(values.values, null, null, attribute, -1);
 		} else if (sameLabel(leftValues.values)) {
 			// left split is pure
 			height++;
