@@ -16,13 +16,14 @@ public class ID3Tree {
 	// the overall node of the tree
 	public ID3TreeNode overallNode;
 	
-	public static final int MAX_DEPTH = 1;
+	public int maxDepth;
 	
 	/**
 	 * constructs a new ID3Tree
 	 * @param values the values of data
 	 */
-	public ID3Tree(HashMap<Integer, List<Features>> values) {
+	public ID3Tree(HashMap<Integer, List<Features>> values, int maxDepth) {
+		this.maxDepth = maxDepth;
 		ValueSize valueSize = new ValueSize(80, values);
 		this.overallNode = growTree(valueSize, 0);
 	}
@@ -34,7 +35,7 @@ public class ID3Tree {
 	 */
 	public ID3TreeNode growTree(ValueSize values, int height) {
 		nodeNum++;
-		if (height >= MAX_DEPTH) {
+		if (height >= maxDepth) {
 			return new ID3TreeNode(values.values, null, null, -1);
 		} else if (sameLabel(values.values)) {
 			// the whole data is pure

@@ -12,20 +12,23 @@ public class ID3Controller {
 		// parse the data files
 		HashMap<Integer, List<Features>> trainData = new HashMap<Integer, List<Features>>();
 		HashMap<Integer, List<Features>> testData = new HashMap<Integer, List<Features>>();
-		DataParserP3.ParseData(trainData, testData);
+		int[] totalSize = new int[2];
+		DataParserP3.ParseData(trainData, testData, totalSize);
 				
 		// constructs a new ID3 tree
-		ID3Tree idtree = new ID3Tree(trainData);
-		// prints out the total number of nodes in the tree
-		System.out.println("total number of nodes is " + idtree.nodeNum);
-		// labels stores each path of the tree and its corresponding label
-		HashMap<List<Integer>, Set<Integer>> labels = new HashMap<List<Integer>, Set<Integer>>();
-		// get the prediction accuracy for test data
-		System.out.println("The percentage of correct prediction for test data is " 
-				+ calculatePredict(testData, idtree, 187, labels) + "%");
-		// get the prediction accuracy for training data*/
-		System.out.println("The percentage of correct prediction for train data is " 
-				+ calculatePredict(trainData, idtree, 80, labels) + "%\n");
+		for (int i = 10 ; i >= 1; i--) {
+			ID3Tree idtree = new ID3Tree(trainData, i);
+			// prints out the total number of nodes in the tree
+			System.out.println("total number of nodes is " + idtree.nodeNum);
+			// labels stores each path of the tree and its corresponding label
+			HashMap<List<Integer>, Set<Integer>> labels = new HashMap<List<Integer>, Set<Integer>>();
+			// get the prediction accuracy for test data
+			System.out.println("The percentage of correct prediction for test data is " 
+					+ calculatePredict(testData, idtree, totalSize[1], labels) + "%");
+			// get the prediction accuracy for training data*/
+			System.out.println("The percentage of correct prediction for train data is " 
+					+ calculatePredict(trainData, idtree, totalSize[0], labels) + "%\n");
+		}
 		}
 	
 	/**

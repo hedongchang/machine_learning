@@ -17,10 +17,12 @@ public class DataParserP3 {
 	 * @return a list that stores all the values
 	 */
 	public static LinkedList<Pair> ParseData(HashMap<Integer, List<Features>> trainData,
-			HashMap<Integer, List<Features>> testData) {
+			HashMap<Integer, List<Features>> testData, int[] totalSize) {
 		File file1 = new File("SPECTtr.txt");
 		File file2 = new File("SPECTt.txt");
 		LinkedList<Pair> retVal = new LinkedList<Pair>();
+		int trainCount = 0;
+		int testCount = 0;
 		try {
 			Scanner input1 = new Scanner(file1);
 			Scanner input2 = new Scanner(file2);
@@ -38,6 +40,7 @@ public class DataParserP3 {
 				}
 				retVal.add(new Pair(label, feature));
 				trainData.get(label).add(new Features(feature));
+				trainCount++;
 			}			
 			while (input2.hasNextLine()) {
 				String line = input2.nextLine();
@@ -54,12 +57,15 @@ public class DataParserP3 {
 				}
 				retVal.add(new Pair(label, feature));
 				testData.get(label).add(new Features(feature));
+				testCount++;
 			}
 			input1.close();
 			input2.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		totalSize[0] = trainCount;
+		totalSize[1] = testCount;
 		return retVal;
 	}
 }
