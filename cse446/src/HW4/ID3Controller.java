@@ -14,9 +14,9 @@ public class ID3Controller {
 		HashMap<Integer, List<Features>> testData = new HashMap<Integer, List<Features>>();
 		int[] totalSize = new int[2];
 		DataParserP3.ParseData(trainData, testData, totalSize);
-				
+
 		// constructs a new ID3 tree
-		for (int i = 10 ; i >= 1; i--) {
+		for (int i = 1 ; i <= 10; i++) {
 			ID3Tree idtree = new ID3Tree(trainData, i);
 			// prints out the total number of nodes in the tree
 			System.out.println("total number of nodes is " + idtree.nodeNum);

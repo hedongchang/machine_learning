@@ -43,7 +43,7 @@ public class BaggingController {
 	 * @param labels store the path and its labels
 	 * @return the percentage of accurate predictions
 	 */
-	private static double calculatePredict(HashMap<Integer, List<Features>> data, 
+	public static double calculatePredict(HashMap<Integer, List<Features>> data, 
 			HashSet<ID3Tree> trees, int totalNum, HashMap<List<Integer>, Integer> map) {
 		int correctCount = 0;
 		for (Integer label: data.keySet()) {

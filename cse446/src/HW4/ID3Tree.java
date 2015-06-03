@@ -18,6 +18,8 @@ public class ID3Tree {
 	
 	public int maxDepth;
 	
+	public int repeatingCount;
+	
 	/**
 	 * constructs a new ID3Tree
 	 * @param values the values of data
@@ -35,19 +37,19 @@ public class ID3Tree {
 	 */
 	public ID3TreeNode growTree(ValueSize values, int height) {
 		nodeNum++;
+		int attribute = findAttribute(values);
 		if (height >= maxDepth) {
 			return new ID3TreeNode(values.values, null, null, -1);
-		} else if (sameLabel(values.values)) {
+		} else if (sameLabel(values.values) || attribute == -1) {
 			// the whole data is pure
 			return new ID3TreeNode(values.values, null, null, -1);
 		} else {
 			height++;
 			//System.out.println();
-			int attribute = findAttribute(values);
-			//System.out.println(attribute);
 			ValueSize leftValue = splitValues(attribute, values.values, true);
 			ValueSize rightValue = splitValues(attribute, values.values, false);
-			return new ID3TreeNode(values.values, growTree(leftValue, height), growTree(rightValue, height), attribute);
+			return new ID3TreeNode(values.values, growTree(leftValue, height),
+					growTree(rightValue, height), attribute);
 		}
 	}
 	
@@ -72,11 +74,16 @@ public class ID3Tree {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param values
+	 * @return
+	 */
 	private int findMostCommonLabel(HashMap<Integer, List<Features>> values) {
 		int maxSize = 0;
 		int maxLabel = 0;
 		for (Integer label: values.keySet()) {
-			if (values.get(label).size() > maxSize) {
+			if (values.get(label).size() >= maxSize) {
 				maxSize = values.get(label).size();
 				maxLabel = label;
 			}
@@ -128,29 +135,36 @@ public class ID3Tree {
 	 * @return whether a class has the same label
 	 */
 	private boolean sameLabel(HashMap<Integer, List<Features>> values) {
-		int count = 0;
+		int classx = 0;
 		for (int i = 0; i < NUM_LABEL; i++) {
 			if (values.get(i).size() != 0) {
-				count++;
+				classx++;
 			}
 		}
-		return count == 1;
+		return (classx == 1);
 	}
 	
 	/**
 	 * find the best attribute of a given set of values
-	 * @param values the valus of data
+	 * @param values the values of data
 	 * @return the best attribute with least conditional entropy
 	 */
 	public int findAttribute(ValueSize values) {
+		int repeatCount = 0;
 		int minAttribute = 0;
 		double minEntropy = Double.MAX_VALUE;
-		for (int i = 1; i < 22; i++) {
+		for (int i = 0; i < NUM_ATTRIBUTE; i++) {
 			double entropy = computeEntropySingleAttribute(values, i);
 			if (entropy <= minEntropy) {
+				if (entropy == minEntropy) {
+					repeatCount++;
+				}
 				minEntropy = entropy;
 				minAttribute = i;
 			}
+		}
+		if (repeatCount == NUM_ATTRIBUTE - 1) {
+			minAttribute = -1;
 		}
 		return minAttribute;
 	}
@@ -197,7 +211,7 @@ public class ID3Tree {
 				if (valueSize.values.containsKey(j)) {
 					if (valueSize.values.get(j).size() != 0) {
 						p2 = (double) valueSize.values.get(j).size() / (double) valueSize.size;
-						entropy += -p2 * Math.log(p2) / Math.log(2);
+						entropy -= (p2 * (Math.log(p2) / Math.log(2)));
 					}
 				}
 			}

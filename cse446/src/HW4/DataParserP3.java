@@ -10,7 +10,7 @@ import java.util.*;
  * @author Dongchang
  *
  */
-public class DataParserP3 {	
+public class DataParserP3 {
 	/**
 	 * @param trainData the training data
 	 * @param testData the test data
